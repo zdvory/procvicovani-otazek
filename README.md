@@ -12,15 +12,16 @@ Aplikace pro procvičování otázek z různých oblastí. Umožňuje výběr ot
 
 ### 🔧 Konfigurace
 
-Aplikace nahrává data s otázkami z Google Sheets, které je veřejně sdíleno. Pro nahrání těchto dat:
+Aplikace nahrává data s otázkami z Google Sheets. Tabulka musí mít nastaveno sdílení na `Všichni, kdo mají odkaz`.
 
-1. **Struktura Google Sheetu**
+**Struktura Google Sheets**
 
     Váš Google Sheet by měl mít následující strukturu:
 
     | Oblast | Podoblast | Číslo otázky | Otázka | Odpověď A | Odpověď B | Odpověď C | Správná odpověď | Zdroje |
     | ------ | --------- | ------------ | ------ | --------- | --------- | --------- | --------------- | ------ |
     | Organizace XYZ | T 1.1 | 1 | Otázka příkladu | Náhodná odpověď A | Náhodná odpověď B | Náhodná odpověď C | a | [odkaz](#) |
+
 
 ### 🚀 Deploy na streamlit.io
 
@@ -33,7 +34,7 @@ Pokud chcete aplikaci rychle a snadno nasadit na streamlit.io, postupujte násle
 3. **Konfigurace secrets**: 
     - V levém menu klikněte na `Secrets`.
     - Klikněte na tlačítko `Add a secret`.
-    - Jako klíč zadejte `public_gsheets_url` a jako hodnotu vložte odkaz na váš veřejně sdílený Google Sheet s otázkami. Ujistěte se, že váš Google Sheet má nastaveno sdílení pro "anyone with the link".
+    - Zadejte následující klíč a hodnotu `public_gsheets_url = "https://docs.google.com/spreadsheets/d/{sheetID}/edit"` (Kako hodnotu vložte odkaz na váš veřejně sdílený Google Sheet s otázkami v uvedeném formátu. Ujistěte se, že váš Google Sheet má nastaveno sdílení pro "anyone with the link".)
 
 4. **Spusťte aplikaci** kliknutím na tlačítko `Deploy`.
 
