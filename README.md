@@ -8,6 +8,7 @@ Aplikace pro procvičování otázek z různých oblastí. Umožňuje výběr ot
 - Zpětná vazba pro uživatele.
 - Statistiky úspěšnosti odpovědí.
 - Možnost podpořit autora aplikace.
+- **Aktuálně podporuje pouze výběr ze 3 otázek.**
 
 ### 🔧 Konfigurace
 Aplikace nahrává data s otázkami z Google Sheets, které je veřejně sdíleno. Pro nahrání těchto dat:
@@ -27,7 +28,25 @@ Aplikace nahrává data s otázkami z Google Sheets, které je veřejně sdílen
     | ------ | --------- | ------------ | ------ | --------- | --------- | --------- | --------------- | ------ |
     | Organizace XYZ | T 1.1 | 1 | Otázka příkladu | Náhodná odpověď A | Náhodná odpověď B | Náhodná odpověď C | a | [odkaz](#) |
 
-### 🚀 Jak spustit aplikaci
+### 🚀 Deploy na streamlit.io
+
+Pokud chcete aplikaci rychle a snadno nasadit na streamlit.io, postupujte následovně:
+
+1. **Přihlaste se na [streamlit.io](https://www.streamlit.io/)** a v pravém horním rohu klikněte na tlačítko `New app`.
+
+2. **Zadejte URL vašeho GitHub repozitáře** do pole `GitHub URL`.
+
+3. **Konfigurace secrets**: 
+    - V levém menu klikněte na `Secrets`.
+    - Klikněte na tlačítko `Add a secret`.
+    - Jako klíč zadejte `public_gsheets_url` a jako hodnotu vložte odkaz na váš veřejně sdílený Google Sheet s otázkami. Ujistěte se, že váš Google Sheet má nastaveno sdílení pro "anyone with the link".
+
+4. **Spusťte aplikaci** kliknutím na tlačítko `Deploy`.
+
+Vaše aplikace by měla být nyní nasazena a běžet na streamlit.io!
+
+
+### 🚀 Jak spustit aplikaci lokálně
 1. **Instalace potřebných knihoven**
     ```bash
     pip install streamlit pandas PIL
