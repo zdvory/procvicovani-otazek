@@ -11,18 +11,12 @@ Aplikace pro procvičování otázek z různých oblastí. Umožňuje výběr ot
 - **Aktuálně podporuje pouze výběr ze 3 otázek.**
 
 ### 🔧 Konfigurace
+
 Aplikace nahrává data s otázkami z Google Sheets, které je veřejně sdíleno. Pro nahrání těchto dat:
 
-1. Vložte odkaz k veřejně sdílenému Google Sheetu do souboru `.streamlit/secrets.toml` nebo do sekce secrets na streamlit.io.
-    
-    **Příklad pro `.streamlit/secrets.toml`**
-    ```toml
-    [global]
-    public_gsheets_url = "https://docs.google.com/spreadsheets/d/{sheetID}/edit"
-    ```
+1. **Struktura Google Sheetu**
 
-2. **Struktura Google Sheetu**
-    Vaše Google Sheets by mělo mít následující strukturu:
+    Váš Google Sheet by měl mít následující strukturu:
 
     | Oblast | Podoblast | Číslo otázky | Otázka | Odpověď A | Odpověď B | Odpověď C | Správná odpověď | Zdroje |
     | ------ | --------- | ------------ | ------ | --------- | --------- | --------- | --------------- | ------ |
@@ -51,10 +45,18 @@ Vaše aplikace by měla být nyní nasazena a běžet na streamlit.io!
     ```bash
     pip install streamlit pandas PIL
     ```
-
+    
 2. **Stáhněte tento repozitář** a navigujte do jeho složky v příkazovém řádku.
 
-3. **Spusťte aplikaci**
+3. Vložte odkaz k veřejně sdílenému Google Sheetu do souboru `.streamlit/secrets.toml`.
+    
+    **Příklad pro `.streamlit/secrets.toml`**
+    ```toml
+    [global]
+    public_gsheets_url = "https://docs.google.com/spreadsheets/d/{sheetID}/edit"
+    ```
+
+4. **Spusťte aplikaci**
     ```bash
     streamlit run app.py
     ```
