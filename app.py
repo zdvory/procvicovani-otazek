@@ -50,7 +50,7 @@ def main():
 
     # Výběr oblastí
     with st.expander('Výběr oblastí'):
-        selected_areas = [area for area in all_areas if st.checkbox(area, value=True)]
+        selected_areas = [area for area in all_areas if st.toggle(area, value=True)]
         if st.button("Načíst otázky z vybraných oblastí", use_container_width=True):
             st.session_state.question_data = select_random_question(selected_areas)
             st.session_state.show_feedback = False
