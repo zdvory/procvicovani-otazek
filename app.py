@@ -31,18 +31,36 @@ def load_data(sheets_url):
 
 def select_random_question(selected_areas):
     """Výběr náhodné otázky z vybraných oblastí."""
-    question_row = data[data['Oblast'].isin(selected_areas)].sample(1).iloc[0]
+    
+    # Vybereme otázky, které nebyly správně zodpovězeny
+    unanswered_questions = data[
+        (data['Oblast'].isin(selected_areas)) & 
+        (~data['Číslo otázky'].astype(str).isin([q for q, score in st.session_state.score_by_question.items() if score["správně"] > 0]))
+    ]
+    
+    if unanswered_questions.empty:
+        return None, None, None
+    
+    question_row = unanswered_questions.sample(1).iloc[0]
     correct_answer = question_row[f"Odpověď {question_row['Správná odpověď'].upper()}"]
     answers = [question_row[f"Odpověď {label}"] for label in ['A', 'B', 'C']]
     random.shuffle(answers)
     return question_row, answers, correct_answer
 
+
 def initialize_score():
     """Inicializace proměnných pro evidenci skóre."""
+    # Skóre pro oblasti
     if "score_by_area" not in st.session_state:
         st.session_state.score_by_area = {area: {"správně": 0, "špatně": 0} for area in all_areas}
-        st.session_state.correct_delta = 0
-        st.session_state.wrong_delta = 0
+
+    # Skóre pro jednotlivé otázky
+    if "score_by_question" not in st.session_state:
+        st.session_state.score_by_question = {str(row["Číslo otázky"]): {"správně": 0, "špatně": 0} for _, row in data.iterrows()}
+    
+    st.session_state.correct_delta = 0
+    st.session_state.wrong_delta = 0
+
 
 # Hlavní aplikace
 def main():
@@ -62,6 +80,20 @@ def main():
         st.session_state.show_feedback = False
 
     question_row, answers, correct_answer = st.session_state.question_data
+
+     # Kontrola, zda všechny otázky byly zodpovězeny
+    if question_row is None and answers is None and correct_answer is None:
+        st.balloons()
+        st.success("Gratuluji! Všechny otázky byly správně zodpovězeny.")
+        if st.button("Začít znovu", use_container_width=True):
+            del st.session_state.score_by_question
+            del st.session_state.score_by_area
+            del st.session_state.question_data
+            st.experimental_rerun()
+        display_statistics()
+        display_additional_statistics()
+        return
+    
 
     # Zobrazení otázky
     st.write(f"Otázka č. {question_row['Číslo otázky']} ({question_row['Oblast']} | {question_row['Podoblast']}):")
@@ -93,13 +125,20 @@ def feedback_after_answer(question_row, correct_answer, selected_areas):
     if pd.notnull(question_row['Zdroje']):
         st.markdown(f"**Zdroje:** {question_row['Zdroje']}")
 
+    question_id = str(question_row['Číslo otázky'])
     area = question_row['Oblast']
+
+    # Inicializace klíče pro otázku v slovníku, pokud ještě neexistuje
+    if question_id not in st.session_state.score_by_question:
+        st.session_state.score_by_question[question_id] = {"správně": 0, "špatně": 0}
+
     if 'answered' not in st.session_state:
         st.session_state.answered = False
 
     if st.session_state.selected_answer == correct_answer:
         st.success('Správně!')
         if not st.session_state.answered:
+            st.session_state.score_by_question[question_id]["správně"] += 1
             st.session_state.score_by_area[area]["správně"] += 1
             st.session_state.answered = True
             st.session_state.correct_delta = 1
@@ -115,11 +154,14 @@ def feedback_after_answer(question_row, correct_answer, selected_areas):
     else:
         st.error(f"Špatně! Správná odpověď je: {correct_answer}")
         if not st.session_state.answered:
+            st.session_state.score_by_question[question_id]["špatně"] += 1
             st.session_state.score_by_area[area]["špatně"] += 1
             st.session_state.answered = True
             st.session_state.wrong_delta = 1
             
     st.write("---")
+
+
 
 def display_statistics():
     #   Celkové statistiky
@@ -142,14 +184,26 @@ def display_statistics():
     with col3:
         st.metric("Úspěšnost", f"{success_percentage:.1f}%", f"{percentage_delta:.1f}%", "off" if percentage_delta == 0 else "normal")
 
+
 def display_additional_statistics():
     """Zobrazení statistiky úspěšnosti."""
     with st.expander("Podrobná Statistika úspěšnosti"):
-        stats_df = pd.DataFrame(st.session_state.score_by_area).T
-        st.table(stats_df)
-        st.bar_chart(stats_df, color=("#f00", "#0f0"))
+        stat_type = st.selectbox("Zobrazit statistiky podle:", ["Oblastí", "Otázek"])
+        if stat_type == "Oblastí":
+            stats_df = pd.DataFrame(st.session_state.score_by_area).T
+            st.table(stats_df)
+            st.bar_chart(stats_df, color=("#f00", "#0f0"))
+        else:
+            show_question_stats()
 
-
+def show_question_stats():
+    # Převod slovníku na DataFrame
+    df = pd.DataFrame.from_dict(st.session_state.score_by_question, orient='index').reset_index()
+    df.rename(columns={'index': 'Číslo otázky', 'správně': 'Správných odpovědí', 'špatně': 'Špatných odpovědí'}, inplace=True)
+    df.sort_values(by='Číslo otázky', key=lambda col: col.astype(int), inplace=True)
+    df.reset_index(drop=True,inplace=True)
+    # Zobrazení tabulky v Streamlitu
+    st.table(df)
 
 # Spuštění aplikace
 data = load_data(st.secrets["public_gsheets_url"])
